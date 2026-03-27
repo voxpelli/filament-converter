@@ -59,9 +59,6 @@ function getSelectedFirmware () {
 async function handleFiles (files) {
   if (!files.length) return;
 
-  profiles = [];
-  activeProfileIndex = 0;
-
   const results = await Promise.allSettled(files.map(async (file) => {
     const text = await file.text();
     return {
@@ -72,10 +69,17 @@ async function handleFiles (files) {
   }));
 
   lastFailCount = 0;
+  const existingNames = new Set(profiles.map((p) => p.filename));
 
   for (const result of results) {
     if (result.status === 'fulfilled') {
-      profiles.push(result.value);
+      if (existingNames.has(result.value.filename)) {
+        // Replace existing profile with updated version
+        const idx = profiles.findIndex((p) => p.filename === result.value.filename);
+        profiles[idx] = result.value;
+      } else {
+        profiles.push(result.value);
+      }
     } else {
       lastFailCount++;
     }
