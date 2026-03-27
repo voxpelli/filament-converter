@@ -10,5 +10,12 @@
 # Test artifacts
 /junit-report.xml
 
+# Screenshots
+*.png
+*.jpeg
+
+# Playwright
+.playwright-mcp/
+
 # App specific ones
 # We commit package-lock.json for reproducible app deployments.
