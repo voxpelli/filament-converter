@@ -1,5 +1,10 @@
 # Filament Transcriber
 
+[![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-7fffff?style=flat&labelColor=ff80ff)](https://github.com/neostandard/neostandard)
+[![Types in JS](https://img.shields.io/badge/types_in_js-yes-brightgreen)](https://github.com/voxpelli/types-in-js)
+[![Follow @voxpelli@mastodon.social](https://img.shields.io/mastodon/follow/109247025527949675?domain=https%3A%2F%2Fmastodon.social&style=social)](https://mastodon.social/@voxpelli)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/voxpelli/filament-converter)
+
 Convert [Bambu Studio](https://wiki.bambulab.com/en/bambu-studio/export-filament) `.json` filament profiles into [PrusaSlicer](https://help.prusa3d.com/article/how-to-import-and-export-custom-profiles-in-prusaslicer_382766) `.ini` format. No data leaves your browser.
 
 **https://voxpelli.github.io/filament-converter/**
