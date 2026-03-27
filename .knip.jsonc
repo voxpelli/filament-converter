@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "converter.js",
+    "lib/converter.js",
+    "test/**/*.spec.js"
+  ],
+  "project": [
+    "**/*.js"
+  ],
+  "ignoreDependencies": []
+}

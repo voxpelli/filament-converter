@@ -1,0 +1,492 @@
+/* Sovereign Warmth Design System */
+@import url('https://fonts.bunny.net/css?family=jetbrains-mono:400|newsreader:400,400i,700|public-sans:400,600&display=swap');
+
+/* Registered color tokens — enables CSS transitions on custom properties */
+@property --color-canvas { syntax: '<color>'; inherits: true; initial-value: #f4f1eb; }
+@property --color-ink { syntax: '<color>'; inherits: true; initial-value: #2c2825; }
+@property --color-cloudberry { syntax: '<color>'; inherits: true; initial-value: #db8a00; }
+@property --color-cloudberry-text { syntax: '<color>'; inherits: true; initial-value: #965e00; }
+@property --color-falu-red { syntax: '<color>'; inherits: true; initial-value: #8c2121; }
+@property --color-stone { syntax: '<color>'; inherits: true; initial-value: #d3ccc3; }
+
+:root {
+    color-scheme: light;
+
+    --color-canvas: light-dark(#f4f1eb, #1a1816);
+    --color-ink: light-dark(#2c2825, #e8e4df);
+    --color-cloudberry: light-dark(#db8a00, #e9a833);
+    --color-cloudberry-text: light-dark(#965e00, #d4a24a);
+    --color-falu-red: light-dark(#8c2121, #d45c5c);
+    --color-stone: light-dark(#d3ccc3, #3a3530);
+    --color-highlight: light-dark(rgba(219, 138, 0, 0.05), rgba(219, 138, 0, 0.08));
+    --color-panel-bg: light-dark(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+    --color-kbd-bg: light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08));
+
+    --font-ui: 'Public Sans', system-ui, sans-serif;
+    --font-body: 'Newsreader', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    font-size-adjust: 0.5;
+}
+
+body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    scrollbar-color: var(--color-stone) var(--color-canvas);
+}
+
+main {
+    width: 100%;
+    max-width: 640px;
+}
+
+h1, h2, h3 {
+    font-family: var(--font-ui);
+    color: var(--color-ink);
+    font-weight: 600;
+    margin-top: 0;
+}
+
+h1 {
+    font-size: 1.75rem;
+    border-bottom: 1px solid var(--color-stone);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-wrap: balance;
+}
+
+h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-falu-red);
+    margin-bottom: 0.5rem;
+    margin-top: 1.25rem;
+    border-bottom: 1px solid var(--color-stone);
+    padding-bottom: 0.25rem;
+}
+
+h3:first-of-type {
+    margin-top: 0;
+}
+
+p {
+    margin-bottom: 1.5rem;
+    text-wrap: pretty;
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    font-size-adjust: 0.52;
+}
+
+.panel {
+    border: 1px solid var(--color-stone);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--color-panel-bg);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-group:last-child {
+    margin-bottom: 0;
+}
+
+label {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+input[type="radio"] {
+    accent-color: var(--color-falu-red);
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+/* Drop Zone */
+.drop-zone {
+    border: 2px dashed var(--color-stone);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    position: relative;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.drop-zone--active {
+    border-color: var(--color-cloudberry);
+    border-style: solid;
+    background-color: var(--color-highlight);
+}
+
+.drop-zone--received {
+    border-color: var(--color-cloudberry);
+    border-style: solid;
+}
+
+.drop-zone__prompt {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    opacity: 0.7;
+    margin: 0;
+}
+
+.drop-zone__browse {
+    color: var(--color-falu-red);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    padding: 0;
+}
+
+.file-count:not(:empty) {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--color-cloudberry-text);
+    margin-top: 0.75rem;
+}
+
+/* Preview Table */
+dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-size-adjust: 0.52;
+}
+
+dt {
+    color: var(--color-ink);
+    opacity: 0.8;
+    border-bottom: 1px solid var(--color-stone);
+    padding-bottom: 0.2rem;
+}
+
+dd {
+    margin: 0;
+    font-weight: bold;
+    border-bottom: 1px solid var(--color-stone);
+    padding-bottom: 0.2rem;
+}
+
+/* Colour Swatch */
+.color-swatch {
+    display: inline-block;
+    width: 0.85em;
+    height: 0.85em;
+    border-radius: 50%;
+    border: 1px solid var(--color-stone);
+    vertical-align: middle;
+    margin-right: 0.35em;
+}
+
+/* Profile Chips (multi-file) */
+.profile-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.profile-chip {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 2.75rem;
+    border: 1px solid var(--color-stone);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    transition: border-color 0.2s;
+}
+
+@media (hover: hover) {
+    .profile-chip:hover {
+        border-color: var(--color-ink);
+    }
+}
+
+.profile-chip:active {
+    transform: translateY(1px);
+}
+
+.profile-chip--active {
+    border-color: var(--color-falu-red);
+    border-bottom-width: 2px;
+}
+
+.notice {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--color-falu-red);
+    margin-top: 1rem;
+    padding: 0.5rem;
+    border-left: 2px solid var(--color-falu-red);
+    transition: color 0.3s, border-color 0.3s;
+}
+
+.notice.high-flow {
+    color: var(--color-cloudberry-text);
+    border-left-color: var(--color-cloudberry);
+}
+
+/* Button reset */
+button {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background: none;
+    color: inherit;
+}
+
+/* Download Button */
+#download-btn {
+    background-color: var(--color-falu-red);
+    color: var(--color-canvas);
+    padding: 0.75rem 1.5rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    transition: background-color 0.2s, transform 0.05s;
+}
+
+#download-btn:focus-visible {
+    outline: 2px solid var(--color-cloudberry);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) {
+    #download-btn:hover {
+        background-color: var(--color-ink);
+    }
+}
+
+#download-btn:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+#download-btn:disabled {
+    background-color: var(--color-stone);
+    color: var(--color-ink);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#download-btn.btn--confirmed {
+    background-color: var(--color-cloudberry-text);
+}
+
+/* Preview Section — smooth reveal via grid height animation */
+#preview-section {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-stone);
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--color-panel-bg);
+    transition: grid-template-rows 0.4s ease, opacity 0.3s ease 0.1s, padding 0.4s ease;
+}
+
+#preview-section.show {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    padding: 1.5rem;
+}
+
+.panel-inner {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* PA Group — smooth reveal */
+#pa-group {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.3s ease;
+    margin-bottom: 0;
+    gap: 0;
+}
+
+#pa-group.show {
+    grid-template-rows: 1fr;
+    margin-bottom: 1.5rem;
+}
+
+.pa-group__inner {
+    min-height: 0;
+    overflow: clip;
+    overflow-clip-margin: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Details / Summary */
+details {
+    margin-bottom: 1.5rem;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2rem;
+}
+
+summary {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-falu-red);
+    padding: 0.25rem 0;
+}
+
+@media (hover: hover) {
+    summary:hover {
+        color: var(--color-ink);
+    }
+}
+
+details .doc-content {
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--color-stone);
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@starting-style {
+    details[open] .doc-content {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+details .doc-content h3 {
+    font-size: 0.85rem;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--color-ink);
+    border-bottom: none;
+    margin: 1rem 0 0.25rem 0;
+}
+
+details .doc-content h3:first-child {
+    margin-top: 0;
+}
+
+details .doc-content ul {
+    margin: 0.25rem 0 0.5rem 0;
+    padding-left: 1.25rem;
+}
+
+details .doc-content li {
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+details .doc-content ol {
+    margin: 0.25rem 0 0.5rem 0;
+    padding-left: 1.25rem;
+}
+
+kbd {
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    font-size-adjust: 0.52;
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--color-stone);
+    border-radius: 3px;
+    background: var(--color-kbd-bg);
+}
+
+/* Progressive: drop zone subtly shifts after files are loaded */
+.drop-zone:has(.file-count:not(:empty)) {
+    border-style: solid;
+    border-color: var(--color-stone);
+}
+
+.drop-zone:has(.file-count:not(:empty)) .drop-zone__prompt {
+    color: var(--color-stone);
+}
+
+/* Progressive: staggered chip entrance (Chrome + Safari, not yet Baseline) */
+@supports (animation-delay: calc(sibling-index() * 1ms)) {
+    .profile-chip {
+        animation: chip-enter 0.2s ease backwards;
+        animation-delay: calc(sibling-index() * 40ms);
+    }
+
+    @keyframes chip-enter {
+        from { opacity: 0; transform: translateY(4px); }
+    }
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print: strip interactive chrome, show content */
+@media print {
+    body { padding: 0; }
+    .drop-zone, #download-btn, .profile-chips, summary { display: none; }
+    #preview-section:not(.show) { display: none; }
+    #preview-section.show { display: block; opacity: 1; overflow: visible; border: none; padding: 0; }
+    .panel-inner { overflow: visible; }
+    .notice { border-left: none; padding-left: 0; }
+    details { display: none; }
+    details[open] { display: block; }
+    details[open] summary { display: none; }
+}

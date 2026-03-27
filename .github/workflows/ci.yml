@@ -1,0 +1,20 @@
+name: Node CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    uses: voxpelli/ghatemplates/.github/workflows/lint.yml@main
+
+  test:
+    uses: voxpelli/ghatemplates/.github/workflows/test.yml@main
+    with:
+      node-versions: '22'
+      os: 'ubuntu-latest'

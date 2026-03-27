@@ -1,0 +1,14 @@
+# Basic ones
+/coverage
+/node_modules
+/.env
+
+# Generated types
+*.d.ts
+*.d.ts.map
+
+# Test artifacts
+/junit-report.xml
+
+# App specific ones
+# We commit package-lock.json for reproducible app deployments.
