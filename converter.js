@@ -165,6 +165,34 @@ for (const r of firmwareRadios) {
   });
 }
 
+function clearAll () {
+  profiles = [];
+  activeProfileIndex = 0;
+  lastFailCount = 0;
+  previewSection.classList.remove('show');
+  paGroup.classList.remove('show');
+  downloadBtn.setAttribute('disabled', '');
+  downloadBtn.textContent = 'Download PrusaSlicer .ini';
+  fileCountEl.textContent = '';
+  profileChipsEl.innerHTML = '';
+  fileUpload.value = '';
+  document.title = 'Filament Converter: Bambu to PrusaSlicer';
+}
+
+/** @param {number} index */
+function removeProfile (index) {
+  profiles.splice(index, 1);
+  if (!profiles.length) {
+    clearAll();
+    return;
+  }
+  if (activeProfileIndex >= profiles.length) {
+    activeProfileIndex = profiles.length - 1;
+  }
+  lastFailCount = 0;
+  processAll();
+}
+
 function processAll () {
   if (!profiles.length) return;
 
@@ -193,6 +221,12 @@ function processAll () {
     countText += ` (${lastFailCount} file${lastFailCount > 1 ? 's' : ''} skipped \u2014 invalid JSON)`;
   }
   fileCountEl.textContent = countText;
+  const clearLink = document.createElement('button');
+  clearLink.type = 'button';
+  clearLink.className = 'file-count__clear';
+  clearLink.textContent = 'clear';
+  clearLink.addEventListener('click', clearAll);
+  fileCountEl.append(' \u2014 ', clearLink);
 
   renderPreview();
   previewSection.classList.add('show');
@@ -235,6 +269,17 @@ function renderPreview () {
 
       const chipName = converted ? converted.name : p.filename;
       chip.append(chipName);
+
+      const removeBtn = document.createElement('span');
+      removeBtn.className = 'profile-chip__remove';
+      removeBtn.textContent = '\u00D7';
+      removeBtn.setAttribute('role', 'button');
+      removeBtn.setAttribute('aria-label', `Remove ${chipName}`);
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeProfile(i);
+      });
+      chip.append(removeBtn);
 
       chip.addEventListener('click', () => {
         activeProfileIndex = i;
@@ -347,12 +392,12 @@ function renderPreview () {
   if (targetPrinter === 'standard') {
     const strong = document.createElement('strong');
     strong.textContent = 'Constraint Applied:';
-    dynamicNotice.append(strong, ' Volumetric speed capped at 15 mm\u00B3/s for MK3S/Mini+ hardware.');
+    dynamicNotice.append(strong, ' Volumetric speed capped at 15 mm\u00B3/s for standard-flow hardware.');
     dynamicNotice.classList.remove('high-flow');
   } else {
     const strong = document.createElement('strong');
-    strong.textContent = 'High-Flow Enabled:';
-    dynamicNotice.append(strong, ` Using native volumetric speed (${String(active._rawMVS)} mm\u00B3/s) for Prusa Core One.`);
+    strong.textContent = 'High Flow:';
+    dynamicNotice.append(strong, ` Using native volumetric speed (${String(active._rawMVS)} mm\u00B3/s).`);
     dynamicNotice.classList.add('high-flow');
   }
 

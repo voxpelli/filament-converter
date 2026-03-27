@@ -164,6 +164,20 @@ input[type="radio"] {
     margin: 0;
 }
 
+.drop-zone__prompt kbd {
+    opacity: 0.5;
+    font-size: 0.8em;
+    vertical-align: baseline;
+}
+
+.drop-zone__hint {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--color-ink);
+    opacity: 0.4;
+    margin: 0.5rem 0 0;
+}
+
 .drop-zone__browse {
     color: var(--color-falu-red);
     text-decoration: underline;
@@ -186,6 +200,24 @@ input[type="radio"] {
     font-size: 0.85rem;
     color: var(--color-cloudberry-text);
     margin-top: 0.75rem;
+}
+
+.file-count__clear {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    color: var(--color-falu-red);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+}
+
+@media (hover: hover) {
+    .file-count__clear:hover {
+        text-decoration: underline;
+    }
 }
 
 /* Preview Table */
@@ -253,6 +285,21 @@ dd {
 
 .profile-chip:active {
     transform: translateY(1px);
+}
+
+.profile-chip__remove {
+    margin-left: 0.35em;
+    font-size: 1.1em;
+    line-height: 1;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+    .profile-chip__remove:hover {
+        opacity: 1;
+    }
 }
 
 .profile-chip--active {
@@ -456,6 +503,10 @@ kbd {
 
 .drop-zone:has(.file-count:not(:empty)) .drop-zone__prompt {
     color: var(--color-stone);
+}
+
+.drop-zone:has(.file-count:not(:empty)) .drop-zone__hint {
+    display: none;
 }
 
 /* Progressive: staggered chip entrance (Chrome + Safari, not yet Baseline) */

@@ -11,7 +11,7 @@
 
     <main>
         <h1>Filament Transcriber</h1>
-        <p>Convert Bambu Studio <code>.json</code> filament profiles into PrusaSlicer <code>.ini</code> format. Handles the full profile schema including retraction, pressure advance, chamber temperature, and bridge cooling. Select multiple files for a bundled import. No data leaves your browser.</p>
+        <p>Convert Bambu Studio <code>.json</code> filament profiles into PrusaSlicer <code>.ini</code> format. Select multiple files for a bundled import. No data leaves your browser.</p>
 
         <details>
             <summary>How the conversion works</summary>
@@ -46,15 +46,15 @@
 
         <section class="panel">
             <div class="input-group">
-                <label>Target Hardware Constraints</label>
+                <label>Target Printer</label>
                 <div class="radio-group">
                     <label class="radio-label">
                         <input type="radio" name="printer" value="standard" checked>
-                        Home: MK3S / Mini+ (0.6mm nozzle, limits volumetric flow)
+                        Standard flow (caps at 15 mm&sup3;/s &mdash; MK3S, Mini+)
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="printer" value="coreone">
-                        Work: Prusa Core One (0.4mm nozzle, allows high flow)
+                        High flow (native speed &mdash; MK4, Core One)
                     </label>
                 </div>
             </div>
@@ -76,7 +76,8 @@
             </div>
 
             <div id="drop-zone" class="drop-zone">
-                <p class="drop-zone__prompt">Drop Bambu <code>.json</code> files here, or <label for="file-upload" class="drop-zone__browse">browse</label></p>
+                <p class="drop-zone__prompt">Drop Bambu <code>.json</code> files here, or <label for="file-upload" class="drop-zone__browse">browse</label> <kbd>&#8984;O</kbd></p>
+                <p class="drop-zone__hint">In Bambu Studio: right-click a filament preset &rarr; Export</p>
                 <input type="file" id="file-upload" accept=".json" multiple>
                 <div id="file-count" class="file-count"></div>
             </div>
