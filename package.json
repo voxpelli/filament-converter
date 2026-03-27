@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "description": "Convert Bambu Studio filament profiles to PrusaSlicer INI format",
+  "homepage": "https://voxpelli.github.io/filament-converter/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/voxpelli/filament-converter.git"
+  },
   "type": "module",
   "scripts": {
     "build:0": "run-s clean",
