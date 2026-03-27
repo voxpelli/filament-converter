@@ -3,7 +3,7 @@ import { convertProfile, generateBundle } from './lib/converter.js';
 /** @type {HTMLInputElement} */
 const fileUpload = /** @type {HTMLInputElement} */ (document.querySelector('#file-upload'));
 /** @type {NodeListOf<HTMLInputElement>} */
-const printerRadios = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name="printer"]'));
+const printerCheckboxes = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name="printer"]'));
 /** @type {NodeListOf<HTMLInputElement>} */
 const firmwareRadios = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name="firmware"]'));
 /** @type {HTMLElement} */
@@ -39,10 +39,10 @@ let activeProfileIndex = 0;
 /** @type {number} */
 let lastFailCount = 0;
 
-/** @returns {import('./lib/converter.js').PrinterTarget} */
-function getSelectedPrinter () {
-  const el = /** @type {HTMLInputElement} */ (document.querySelector('input[name="printer"]:checked'));
-  return /** @type {import('./lib/converter.js').PrinterTarget} */ (el.value);
+/** @returns {import('./lib/converter.js').PrinterTarget[]} */
+function getSelectedPrinters () {
+  const checked = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name="printer"]:checked'));
+  return [...checked].map((el) => /** @type {import('./lib/converter.js').PrinterTarget} */ (el.value));
 }
 
 /** @returns {import('./lib/converter.js').FirmwareType} */
@@ -143,11 +143,13 @@ document.addEventListener('keydown', (event) => {
 
 // Restore saved radio preferences (progressive — silent no-op if storage is unavailable)
 try {
-  const savedPrinter = localStorage.getItem('fc:printer');
+  const savedPrinters = localStorage.getItem('fc:printers');
   const savedFirmware = localStorage.getItem('fc:firmware');
-  if (savedPrinter) {
-    const match = /** @type {HTMLInputElement | null} */ (document.querySelector(`input[name="printer"][value="${savedPrinter}"]`));
-    if (match) match.checked = true;
+  if (savedPrinters) {
+    const values = savedPrinters.split(',');
+    for (const cb of printerCheckboxes) {
+      cb.checked = values.includes(cb.value);
+    }
   }
   if (savedFirmware) {
     const match = /** @type {HTMLInputElement | null} */ (document.querySelector(`input[name="firmware"][value="${savedFirmware}"]`));
@@ -156,9 +158,15 @@ try {
 } catch { /* localStorage unavailable — use defaults */ }
 
 // Re-process on printer or firmware change, persist selection
-for (const r of printerRadios) {
-  r.addEventListener('change', () => {
-    try { localStorage.setItem('fc:printer', getSelectedPrinter()); } catch { /* */ }
+for (const cb of printerCheckboxes) {
+  cb.addEventListener('change', () => {
+    // Enforce at least one checked
+    const selected = getSelectedPrinters();
+    if (!selected.length) {
+      cb.checked = true;
+      return;
+    }
+    try { localStorage.setItem('fc:printers', selected.join(',')); } catch { /* */ }
     if (profiles.length) processAll();
   });
 }
@@ -200,11 +208,15 @@ function removeProfile (index) {
 function processAll () {
   if (!profiles.length) return;
 
-  const printer = getSelectedPrinter();
-  let anyPA = false;
+  const printers = getSelectedPrinters();
+  if (!printers.length) return;
 
+  let anyPA = false;
+  const previewPrinter = /** @type {import('./lib/converter.js').PrinterTarget} */ (printers[0]);
+
+  // Convert for the first selected printer (for preview display)
   for (const p of profiles) {
-    p.converted = convertProfile(p.rawConfig, printer);
+    p.converted = convertProfile(p.rawConfig, previewPrinter);
     if (p.converted._pressureAdvance) anyPA = true;
   }
 
@@ -235,9 +247,10 @@ function processAll () {
   renderPreview();
   previewSection.classList.add('show');
   downloadBtn.removeAttribute('disabled');
-  downloadBtn.textContent = profiles.length === 1
+  const totalOutput = profiles.length * printers.length;
+  downloadBtn.textContent = totalOutput === 1
     ? 'Download PrusaSlicer .ini'
-    : `Download ${profiles.length} profiles as bundled .ini`;
+    : `Download ${totalOutput} profiles as bundled .ini`;
 
   // Update tab title to reflect loaded state
   document.title = profiles.length === 1
@@ -294,7 +307,8 @@ function renderPreview () {
     }
   }
 
-  const targetPrinter = getSelectedPrinter();
+  const targetPrinters = getSelectedPrinters();
+  const targetPrinter = /** @type {import('./lib/converter.js').PrinterTarget} */ (targetPrinters[0]);
   const activeEntry = /** @type {LoadedProfile} */ (profiles[activeProfileIndex]);
   const active = activeEntry.converted;
   if (!active) return;
@@ -393,10 +407,15 @@ function renderPreview () {
   // Dynamic notice — built via DOM API (no innerHTML with interpolated data)
   dynamicNotice.textContent = '';
 
-  if (targetPrinter === 'standard') {
+  if (targetPrinters.length === 2) {
+    const strong = document.createElement('strong');
+    strong.textContent = 'Both targets selected:';
+    dynamicNotice.append(strong, ` @NORMAL (capped at 15 mm\u00B3/s) and @HIGH (native ${String(active._rawMVS)} mm\u00B3/s) variants will be exported.`);
+    dynamicNotice.classList.remove('high-flow');
+  } else if (targetPrinter === 'standard') {
     const strong = document.createElement('strong');
     strong.textContent = 'Constraint Applied:';
-    dynamicNotice.append(strong, ' Volumetric speed capped at 15 mm\u00B3/s for standard-flow hardware.');
+    dynamicNotice.append(strong, ' Volumetric speed capped at 15 mm\u00B3/s for normal-flow hardware.');
     dynamicNotice.classList.remove('high-flow');
   } else {
     const strong = document.createElement('strong');
@@ -422,10 +441,19 @@ downloadBtn.addEventListener('click', () => {
   if (!profiles.length) return;
 
   const firmware = getSelectedFirmware();
+  const printers = getSelectedPrinters();
   /** @type {import('./lib/converter.js').ConvertedProfile[]} */
   const converted = [];
-  for (const p of profiles) {
-    if (p.converted) converted.push(p.converted);
+  const addSuffix = printers.length > 1;
+  for (const printer of printers) {
+    const suffix = printer === 'standard' ? ' @NORMAL' : ' @HIGH';
+    for (const p of profiles) {
+      const result = convertProfile(p.rawConfig, printer);
+      if (addSuffix) {
+        result.name = `${result.name}${suffix}`;
+      }
+      converted.push(result);
+    }
   }
   const iniContent = generateBundle(converted, firmware);
 
