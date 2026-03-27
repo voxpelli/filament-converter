@@ -86,7 +86,7 @@ Zero runtime dependencies. Static site -- no build step required for the fronten
 
 ## Built with
 
-This project was built mostly with [Claude Code](https://claude.ai/claude-code) -- Anthropic's CLI for Claude. The design system, conversion logic, progressive enhancements, and test suite were developed through iterative AI-assisted sessions.
+The original mockup was built by [Google Gemini](https://gemini.google.com/). The project was then developed and refined with [Claude Code](https://claude.ai/claude-code) -- Anthropic's CLI for Claude. The design system, conversion logic, progressive enhancements, and test suite were all shaped through iterative AI-assisted sessions.
 
 ## License
 
