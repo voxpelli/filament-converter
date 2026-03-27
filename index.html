@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filament Converter: Bambu to PrusaSlicer</title>
+    <style>
+        /* Sovereign Warmth Design System */
+        @import url('https://fonts.bunny.net/css?family=jetbrains-mono:400|newsreader:400,400i,700|public-sans:400,600');
+
+        :root {
+            --color-canvas: #f4f1eb; /* Unbleached */
+            --color-ink: #2c2825; /* Soft black/brown */
+            --color-cloudberry: #db8a00; /* Amber */
+            --color-falu-red: #8c2121; /* Clay red */
+            --color-stone: #d3ccc3; /* Border stone */
+            
+            --font-ui: 'Public Sans', system-ui, sans-serif;
+            --font-body: 'Newsreader', serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--color-canvas);
+            color: var(--color-ink);
+            font-family: var(--font-body);
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        main {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-ui);
+            color: var(--color-ink);
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            border-bottom: 1px solid var(--color-stone);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+        }
+
+        .panel {
+            border: 1px solid var(--color-stone);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.3); /* Slight lift from canvas */
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            accent-color: var(--color-falu-red);
+            width: 1.1rem;
+            height: 1.1rem;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border: 1px dashed var(--color-stone);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        input[type="file"]:focus {
+            outline: 2px solid var(--color-cloudberry);
+            outline-offset: 2px;
+        }
+
+        /* Preview Table */
+        dl {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1rem;
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        dt {
+            color: var(--color-ink);
+            opacity: 0.8;
+            border-bottom: 1px solid var(--color-stone);
+            padding-bottom: 0.25rem;
+        }
+
+        dd {
+            margin: 0;
+            font-weight: bold;
+            border-bottom: 1px solid var(--color-stone);
+            padding-bottom: 0.25rem;
+        }
+
+        .notice {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            color: var(--color-falu-red);
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-left: 2px solid var(--color-falu-red);
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .notice.high-flow {
+            color: var(--color-cloudberry);
+            border-left-color: var(--color-cloudberry);
+        }
+
+        button {
+            font-family: var(--font-ui);
+            background-color: var(--color-falu-red);
+            color: var(--color-canvas);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        button:hover, button:focus {
+            background-color: var(--color-ink);
+            outline: 2px solid var(--color-cloudberry);
+            outline-offset: 2px;
+        }
+
+        button:disabled {
+            background-color: var(--color-stone);
+            color: var(--color-ink);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #preview-section {
+            display: none;
+        }
+
+        .show {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <h1>Filament Transcriber</h1>
+        <p>A strictly client-side utility to convert Bambu Studio <code>.json</code> filament profiles into PrusaSlicer <code>.ini</code> formats. No data leaves your browser.</p>
+
+        <section class="panel">
+            <div class="input-group">
+                <label>Target Hardware Constraints</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="printer" value="standard" checked> 
+                        Home: MK3S / Mini+ (0.6mm nozzle, limits volumetric flow)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="printer" value="coreone"> 
+                        Work: Prusa Core One (0.4mm nozzle, allows high flow)
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="file-upload">Select Bambu Filament JSON</label>
+                <input type="file" id="file-upload" accept=".json">
+            </div>
+        </section>
+
+        <section id="preview-section" class="panel">
+            <h2>Profile Preview</h2>
+            <dl id="preview-list">
+                <!-- Data populated by JS -->
+            </dl>
+            <div id="dynamic-notice" class="notice">
+                <!-- Notice populated by JS -->
+            </div>
+        </section>
+
+        <button id="download-btn" disabled>Download PrusaSlicer .ini</button>
+    </main>
+
+    <script>
+        const fileUpload = document.getElementById('file-upload');
+        const printerRadios = document.querySelectorAll('input[name="printer"]');
+        const previewSection = document.getElementById('preview-section');
+        const previewList = document.getElementById('preview-list');
+        const dynamicNotice = document.getElementById('dynamic-notice');
+        const downloadBtn = document.getElementById('download-btn');
+
+        let rawBambuConfig = null;
+        let convertedData = null;
+        let originalFilename = "filament";
+
+        // Helper to extract first item of array if Bambu stores it that way
+        const extractValue = (obj, key, fallback = "") => {
+            if (!obj || !obj[key]) return fallback;
+            return Array.isArray(obj[key]) ? obj[key][0] : obj[key];
+        };
+
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            originalFilename = file.name.replace('.json', '');
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                try {
+                    rawBambuConfig = JSON.parse(e.target.result);
+                    processConfig();
+                } catch (err) {
+                    alert("Invalid JSON file. Please upload a valid Bambu Studio filament config.");
+                    console.error(err);
+                }
+            };
+
+            reader.readAsText(file);
+        });
+
+        // Re-process if printer target changes
+        printerRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (rawBambuConfig) processConfig();
+            });
+        });
+
+        function processConfig() {
+            if (!rawBambuConfig) return;
+
+            const targetPrinter = document.querySelector('input[name="printer"]:checked').value;
+            const rawMVS = parseFloat(extractValue(rawBambuConfig, 'filament_max_volumetric_speed', '15'));
+            
+            let finalMVS = rawMVS;
+            let wasCapped = false;
+
+            // Apply constraints based on selected hardware
+            if (targetPrinter === 'standard') {
+                finalMVS = Math.min(rawMVS, 15.0);
+                if (rawMVS > 15.0) wasCapped = true;
+                
+                dynamicNotice.innerHTML = `<strong>Constraint Applied:</strong> Volumetric speed is capped at 15 mm³/s to prevent extruder skipping on MK3S/Mini+ hardware, especially when using 0.6mm nozzles for vase mode.`;
+                dynamicNotice.classList.remove('high-flow');
+            } else {
+                // Core One allows the full Bambu flow rate
+                dynamicNotice.innerHTML = `<strong>High-Flow Enabled:</strong> Using Bambu Studio's native volumetric speed (${rawMVS} mm³/s) optimized for the Prusa Core One.`;
+                dynamicNotice.classList.add('high-flow');
+            }
+
+            // FIX: Bambu uses plate-specific temperatures, not a generic "bed_temperature". 
+            // We'll prioritize textured plate (Prusa standard PEI), falling back to hot plate (smooth).
+            const targetBedTemp = extractValue(rawBambuConfig, 'textured_plate_temp', extractValue(rawBambuConfig, 'hot_plate_temp', '60'));
+            const targetBedTempInitial = extractValue(rawBambuConfig, 'textured_plate_temp_initial_layer', extractValue(rawBambuConfig, 'hot_plate_temp_initial_layer', '60'));
+
+            convertedData = {
+                name: extractValue(rawBambuConfig, 'name', 'Converted_Bambu_Filament'),
+                filament_type: extractValue(rawBambuConfig, 'filament_type', 'PLA'),
+                filament_vendor: extractValue(rawBambuConfig, 'filament_vendor', 'Unknown'),
+                filament_density: extractValue(rawBambuConfig, 'filament_density', '1.24'),
+                filament_cost: extractValue(rawBambuConfig, 'filament_cost', '0'),
+                extrusion_multiplier: extractValue(rawBambuConfig, 'filament_flow_ratio', '1'),
+                temperature: extractValue(rawBambuConfig, 'nozzle_temperature', '210'),
+                first_layer_temperature: extractValue(rawBambuConfig, 'nozzle_temperature_initial_layer', '215'),
+                bed_temperature: targetBedTemp,
+                first_layer_bed_temperature: targetBedTempInitial,
+                min_fan_speed: extractValue(rawBambuConfig, 'fan_min_speed', '100'),
+                max_fan_speed: extractValue(rawBambuConfig, 'fan_max_speed', '100'),
+                disable_fan_first_layers: extractValue(rawBambuConfig, 'close_fan_the_first_x_layers', '1'),
+                slowdown_below_layer_time: extractValue(rawBambuConfig, 'slow_down_layer_time', '8'),
+                filament_max_volumetric_speed: finalMVS.toString()
+            };
+
+            renderPreview(convertedData, rawMVS, wasCapped);
+            
+            previewSection.classList.add('show');
+            downloadBtn.removeAttribute('disabled');
+        }
+
+        function renderPreview(data, originalMVS, wasCapped) {
+            previewList.innerHTML = '';
+            
+            const labels = {
+                filament_type: 'Filament Type',
+                filament_density: 'Density (g/cm³)',
+                extrusion_multiplier: 'Flow / Extrusion Multiplier',
+                first_layer_temperature: 'First Layer Temp (°C)',
+                temperature: 'Other Layers Temp (°C)',
+                first_layer_bed_temperature: 'First Layer Bed (°C)',
+                bed_temperature: 'Other Layers Bed (°C)',
+                min_fan_speed: 'Min Fan Speed (%)',
+                max_fan_speed: 'Max Fan Speed (%)',
+                disable_fan_first_layers: 'Fan Off First Layers',
+                filament_max_volumetric_speed: 'Max Volumetric (mm³/s)'
+            };
+
+            for (const [key, label] of Object.entries(labels)) {
+                let displayValue = data[key];
+                
+                if (key === 'filament_max_volumetric_speed' && wasCapped) {
+                    displayValue = `${data[key]} (Capped from ${originalMVS})`;
+                }
+
+                const dt = document.createElement('dt');
+                dt.textContent = label;
+                const dd = document.createElement('dd');
+                dd.textContent = displayValue;
+                
+                previewList.appendChild(dt);
+                previewList.appendChild(dd);
+            }
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            if (!convertedData) return;
+
+            // Generate INI format
+            let iniContent = `[filament:${convertedData.name}]\n`;
+            iniContent += `filament_type = ${convertedData.filament_type}\n`;
+            if (convertedData.filament_vendor !== 'Unknown') {
+                iniContent += `filament_vendor = ${convertedData.filament_vendor}\n`;
+            }
+            iniContent += `filament_density = ${convertedData.filament_density}\n`;
+            iniContent += `filament_cost = ${convertedData.filament_cost}\n`;
+            iniContent += `extrusion_multiplier = ${convertedData.extrusion_multiplier}\n`;
+            iniContent += `temperature = ${convertedData.temperature}\n`;
+            iniContent += `first_layer_temperature = ${convertedData.first_layer_temperature}\n`;
+            iniContent += `bed_temperature = ${convertedData.bed_temperature}\n`;
+            iniContent += `first_layer_bed_temperature = ${convertedData.first_layer_bed_temperature}\n`;
+            iniContent += `fan_always_on = 1\n`;
+            iniContent += `disable_fan_first_layers = ${convertedData.disable_fan_first_layers}\n`;
+            iniContent += `min_fan_speed = ${convertedData.min_fan_speed}\n`;
+            iniContent += `max_fan_speed = ${convertedData.max_fan_speed}\n`;
+            iniContent += `slowdown_below_layer_time = ${convertedData.slowdown_below_layer_time}\n`;
+            iniContent += `filament_max_volumetric_speed = ${convertedData.filament_max_volumetric_speed}\n`;
+            iniContent += `; Converted securely via client-side tool\n`;
+
+            // Trigger Download
+            const blob = new Blob([iniContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${originalFilename}_prusaslicer.ini`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
