@@ -24,7 +24,7 @@ jobs:
       # - name: Build
       #   run: npx esbuild converter.js --bundle --outdir=dist --format=esm
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: .
 
