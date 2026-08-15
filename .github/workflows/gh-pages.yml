@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       # - name: Build
       #   run: npx esbuild converter.js --bundle --outdir=dist --format=esm
       - name: Upload artifact
