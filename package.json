@@ -48,6 +48,6 @@
     "knip": "^5.86.0",
     "npm-run-all2": "^8.0.4",
     "type-coverage": "^2.29.7",
-    "typescript": "~5.9.3"
+    "typescript": "~7.0.0"
   }
 }
