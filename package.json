@@ -39,7 +39,7 @@
     "@playwright/test": "^1.58.2",
     "@types/node": "^22.19.15",
     "@voxpelli/eslint-config": "^23.0.0",
-    "@voxpelli/tsconfig": "^16.1.0",
+    "@voxpelli/tsconfig": "^17.0.0",
     "browser-sync": "^3.0.4",
     "c8": "^11.0.0",
     "eslint": "^9.39.4",
@@ -48,6 +48,6 @@
     "knip": "^5.86.0",
     "npm-run-all2": "^8.0.4",
     "type-coverage": "^2.29.7",
-    "typescript": "~5.9.3"
+    "typescript": "~7.0.0"
   }
 }
